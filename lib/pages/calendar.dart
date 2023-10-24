@@ -11,6 +11,7 @@ var lastDay = DateTime(now.year, now.month + 3, now.day);
 
 class CalendarPage extends StatelessWidget {
   int _opcaoSelecionada = 0;
+  
   CalendarFormat format = CalendarFormat.month;
 
   @override
