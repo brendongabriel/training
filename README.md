@@ -1,16 +1,20 @@
 # training
 
-A new Flutter project.
+ É um aplicativo desenvolvido em Flutter que oferece recursos de treinamento para usuários interessados em aprender e melhorar suas habilidades em diversas áreas. O aplicativo inclui recursos como tutoriais, quizzes, vídeos e muito mais.
 
-## Getting Started
+## Instalação
 
-This project is a starting point for a Flutter application.
+Siga estas etapas para configurar e executar o aplicativo em seu ambiente local:
 
-A few resources to get you started if this is your first Flutter project:
+Certifique-se de ter o Flutter instalado em sua máquina.
+Clone este repositório para o seu sistema local.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```git clone https://github.com/seu-usuario/seu-repositorio.git```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Navegue até o diretório do projeto.
+
+```cd path/training```
+
+Execute o aplicativo com o Flutter.
+
+```flutter run```
