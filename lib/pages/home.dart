@@ -5,6 +5,7 @@ import 'package:training/pages/calendar.dart';
 import 'package:training/pages/settings.dart';
 import 'package:training/pages/training.dart';
 import 'package:training/services/firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -154,7 +155,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: openNoteBox,
-        child: Icon(Icons.add),
+        child: FaIcon(FontAwesomeIcons.plus, color: Colors.white),
         backgroundColor: Colors.blue,
       ),
       body: Container(
@@ -273,52 +274,60 @@ class _HomePageState extends State<HomePage> {
                 ),
               )),
           Container(
-            margin: EdgeInsets.only(left: 20, top: 250),
-            child: Stack(
-              children: [
-                Text("Treinos",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                StreamBuilder<QuerySnapshot>(
-                  stream: firestoreService.getTraining(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index) {
-                          DocumentSnapshot documentSnapshot =
-                              snapshot.data!.docs[index];
-                          String docID = documentSnapshot.id;
-                          Map<String, dynamic> task =
-                              documentSnapshot.data() as Map<String, dynamic>;
-                          return Card(
-                            child: ListTile(
-                                title: Text(task['name']),
-                                subtitle: Text(task['description']),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                        icon: Icon(Icons.edit),
-                                        onPressed: () =>
-                                            openNoteBox(docID: docID, name: task['name'], description: task['description'])),
-                                    IconButton(
-                                        icon: Icon(Icons.delete),
+              margin: EdgeInsets.only(left: 20, top: 250),
+              child: Column(
+                children: [
+                  Text("Treinos",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: firestoreService.getTraining(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              DocumentSnapshot documentSnapshot =
+                                  snapshot.data!.docs[index];
+                              String docID = documentSnapshot.id;
+                              Map<String, dynamic> task = documentSnapshot
+                                  .data() as Map<String, dynamic>;
+                              return Card(
+                                child: ListTile(
+                                  title: Text(task['name']),
+                                  subtitle: Text(task['description']),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: FaIcon(FontAwesomeIcons.penSquare,
+                                            color: Colors.black38),
+                                        onPressed: () => openNoteBox(
+                                            docID: docID,
+                                            name: task['name'],
+                                            description: task['description']),
+                                      ),
+                                      IconButton(
+                                        icon: FaIcon(FontAwesomeIcons.trash,
+                                            color: Colors.black38),
                                         onPressed: () => firestoreService
-                                            .deleteTraining(docID)),
-                                  ],
-                                )),
+                                            .deleteTraining(docID),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           );
-                        },
-                      );
-                    } else {
-                      return Center(child: Text("Sem treinos cadastrados"));
-                    }
-                  },
-                )
-              ],
-            ),
-          )
+                        } else {
+                          return Center(child: Text("Sem treinos cadastrados"));
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ))
         ]),
       ),
     ));
