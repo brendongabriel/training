@@ -1,4 +1,4 @@
-# training
+# Training
 
  É um aplicativo desenvolvido em Flutter que oferece recursos de treinamento para usuários interessados em aprender e melhorar suas habilidades em diversas áreas. O aplicativo inclui recursos como tutoriais, quizzes, vídeos e muito mais.
 
