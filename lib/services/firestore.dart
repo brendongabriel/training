@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
-  // get colleciton of training
   final CollectionReference training =
       FirebaseFirestore.instance.collection('training');
 
@@ -17,6 +16,23 @@ class FirestoreService {
   // READ
   Stream<QuerySnapshot> getTraining() {
     return training.orderBy('timestamp', descending: true).snapshots();
+  }
+
+  Stream<QuerySnapshot> getTrainingPerDay(DateTime? selectedDay) {
+    DateTime now = DateTime.now();
+    selectedDay ??= now;
+
+    DateTime startOfDay =
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day, 0, 0, 0);
+    DateTime endOfDay = DateTime(
+        selectedDay.year, selectedDay.month, selectedDay.day, 23, 59, 59);
+
+    Timestamp endOfDayTimestamp = Timestamp.fromDate(endOfDay);
+    Timestamp startOfDayTimestamp = Timestamp.fromDate(startOfDay);
+
+    return training.where('timestamp', isGreaterThanOrEqualTo: startOfDayTimestamp)
+        .where('timestamp', isLessThanOrEqualTo: endOfDayTimestamp)
+        .snapshots();
   }
 
   // UPDATE

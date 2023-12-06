@@ -151,7 +151,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       appBar: AppBar(
-        title: const Text("Aplicativo academia"),
+        title: const Text("Training"),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: openNoteBox,
@@ -302,7 +302,7 @@ class _HomePageState extends State<HomePage> {
                                     children: [
                                       IconButton(
                                         icon: FaIcon(FontAwesomeIcons.penSquare,
-                                            color: Colors.black38),
+                                            color: Colors.blue),
                                         onPressed: () => openNoteBox(
                                             docID: docID,
                                             name: task['name'],
@@ -310,7 +310,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       IconButton(
                                         icon: FaIcon(FontAwesomeIcons.trash,
-                                            color: Colors.black38),
+                                            color: Colors.blue),
                                         onPressed: () => firestoreService
                                             .deleteTraining(docID),
                                       ),

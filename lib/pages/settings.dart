@@ -94,7 +94,7 @@ class SettingsPage extends StatelessWidget {
               ],
             ),
             appBar: AppBar(
-              title: Text("Aplicativo academia"),
+              title: Text("Training"),
             ),
             body: Container(
                 padding: EdgeInsets.only(

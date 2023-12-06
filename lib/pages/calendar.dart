@@ -1,8 +1,13 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:training/pages/monitoring.dart';
 import 'package:training/pages/home.dart';
 import 'package:training/pages/settings.dart';
 import 'package:training/pages/training.dart';
+
+import 'package:training/services/firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 var now = DateTime.now();
@@ -10,56 +15,60 @@ var firstDay = DateTime(now.year, now.month - 3, now.day);
 var lastDay = DateTime(now.year, now.month + 3, now.day);
 
 class CalendarPage extends StatelessWidget {
+  final FirestoreService firestoreService = FirestoreService();
+  DateTime? _selectedDay = DateTime.now(); // Inicializa com a data atual
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   int _opcaoSelecionada = 0;
-  
+
   CalendarFormat format = CalendarFormat.month;
 
   @override
   Widget build(BuildContext context) {
+    buscarTreinos(_selectedDay);
     return MaterialApp(
         home: Scaffold(
             bottomNavigationBar: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               currentIndex: 2,
               onTap: (value) {
-          switch (value) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CalendarPage()),
-              );
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MonitoringPage()),
-              );
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TrainingPage()),
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-              break;
-            default:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-          }
-        },
+                switch (value) {
+                  case 0:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CalendarPage()),
+                    );
+                    break;
+                  case 1:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MonitoringPage()),
+                    );
+                    break;
+                  case 2:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                    break;
+                  case 3:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TrainingPage()),
+                    );
+                    break;
+                  case 4:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingsPage()),
+                    );
+                    break;
+                  default:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                }
+              },
               fixedColor: Colors.blue,
               items: [
                 BottomNavigationBarItem(
@@ -103,7 +112,7 @@ class CalendarPage extends StatelessWidget {
               ],
             ),
             appBar: AppBar(
-              title: Text("Aplicativo academia"),
+              title: Text("Training"),
             ),
             body: Container(
                 child: Column(
@@ -112,7 +121,7 @@ class CalendarPage extends StatelessWidget {
                   focusedDay: now,
                   firstDay: firstDay,
                   lastDay: lastDay,
-                  calendarFormat: format,
+                  calendarFormat: _calendarFormat,
                   startingDayOfWeek: StartingDayOfWeek.monday,
                   availableCalendarFormats: const {
                     CalendarFormat.month: 'Month',
@@ -134,6 +143,10 @@ class CalendarPage extends StatelessWidget {
                     formatButtonTextStyle:
                         TextStyle(color: Colors.white, fontSize: 12),
                   ),
+                  onDaySelected: (selectedDay, focusedDay) {
+                    _selectedDay = selectedDay;
+                    buscarTreinos(_selectedDay);
+                  },
                 ),
                 SizedBox(
                   height: 10,
@@ -157,64 +170,60 @@ class CalendarPage extends StatelessWidget {
                 SizedBox(
                   height: 15,
                 ),
-                Stack(
-                  children: [
-                    Container(
-                        height: 80,
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: Stack(
-                          children: [
-                            Card(
-                              child: ListTile(
-                                leading: Icon(Icons.fitness_center),
-                                title: Text('Treino 1'),
-                                subtitle: Text(now.day.toString() +
-                                    '/' +
-                                    now.month.toString() +
-                                    '/' +
-                                    now.year.toString()),
-                              ),
-                            ),
-                            Align(
-                                alignment: Alignment.centerRight,
-                                child: Text("Treino de pernas",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)))
-                          ],
-                        )),
-                    Container(
-                        height: 80,
-                        margin: EdgeInsets.only(top: 80),
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: Stack(
-                          children: [
-                            Card(
-                              child: ListTile(
-                                leading: Icon(Icons.fitness_center),
-                                title: Text('Treino 2'),
-                                subtitle: Text(now.day.toString() +
-                                    '/' +
-                                    now.month.toString() +
-                                    '/' +
-                                    now.year.toString()),
-                              ),
-                            ),
-                            Align(
-                                alignment: Alignment.centerRight,
-                                child: Text("Treino de ombros",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)))
-                          ],
-                        )),
-                  ],
+                Expanded(
+                  child: StreamBuilder<Stream<QuerySnapshot>>(
+                    stream: trainingStreamController.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return StreamBuilder<QuerySnapshot>(
+                          stream: snapshot.data,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ListView.builder(
+                                itemCount: snapshot.data!.docs.length,
+                                itemBuilder: (context, index) {
+                                  DocumentSnapshot documentSnapshot =
+                                      snapshot.data!.docs[index];
+                                  String docID = documentSnapshot.id;
+                                  Map<String, dynamic> task = documentSnapshot
+                                      .data() as Map<String, dynamic>;
+                                  return ListTile(
+                                    title: Text(task['name']),
+                                    subtitle: Text(task['description']),
+                                    trailing: Icon(Icons.arrow_forward_ios),
+                                    onTap: () {},
+                                  );
+                                },
+                              );
+                            } else {
+                              return Center(
+                                  child: Text("Sem treinos cadastrados"));
+                            }
+                          },
+                        );
+                      } else {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  ),
                 ),
               ],
             ))));
   }
+
+  void buscarTreinos(DateTime? selectedDay) {
+    // Verifica se o _selectedDay é nulo, caso seja, use o DateTime.now()
+    DateTime dayToQuery = selectedDay ?? DateTime.now();
+
+    // Chame a função getTrainingPerDay do seu serviço Firestore
+    Stream<QuerySnapshot> trainingStream =
+        firestoreService.getTrainingPerDay(dayToQuery);
+
+    // Atualize o StreamBuilder com o novo Stream
+    // Isso fará com que a interface do usuário seja reconstruída automaticamente quando houver alterações nos dados
+    trainingStreamController.add(trainingStream);
+  }
+
+// Declaração de um StreamController para gerenciar o Stream dentro do StreamBuilder
+  final trainingStreamController = StreamController<Stream<QuerySnapshot>>();
 }

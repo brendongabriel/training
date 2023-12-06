@@ -1,8 +1,12 @@
-import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:training/pages/home.dart';
+import 'package:training/services/auth_service.dart';
 
 class LoginPage extends StatelessWidget {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +29,7 @@ class LoginPage extends StatelessWidget {
             ),
             TextFormField(
               // autofocus: true,
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: "E-mail",
@@ -41,6 +46,7 @@ class LoginPage extends StatelessWidget {
             ),
             TextFormField(
               // autofocus: true,
+              controller: _passwordController,
               keyboardType: TextInputType.text,
               obscureText: true,
               decoration: InputDecoration(
@@ -90,17 +96,44 @@ class LoginPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                  },
+                  onPressed: () => login(context),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  login(BuildContext context) async {
+    try {
+      bool response = await AuthService()
+          .login(_emailController.text, _passwordController.text);
+      if (response) {
+        // Navegar para a HomePage após o login bem-sucedido
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        // Exibir mensagem de erro, se necessário
+        showSuccessMessage("Erro ao fazer login", context);
+        _passwordController.clear();
+      }
+    } on FirebaseException catch (e) {
+      print(e.message);
+    }
+  }
+
+  void showSuccessMessage(String message, BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(message),
+        actions: <Widget>[
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text("Ok"))
+        ],
       ),
     );
   }

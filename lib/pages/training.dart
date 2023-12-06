@@ -96,7 +96,7 @@ class TrainingPage extends StatelessWidget {
               ],
             ),
             appBar: AppBar(
-              title: Text("Aplicativo academia"),
+              title: Text("Training"),
             ),
             body: Container(
               child: Center(child: Text("Tela de treinos")),
